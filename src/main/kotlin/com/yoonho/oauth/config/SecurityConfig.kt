@@ -17,7 +17,7 @@ class SecurityConfig {
     private val log = LoggerFactory.getLogger(this::class.java)
 
     @Bean
-    fun configure(http: HttpSecurity): SecurityFilterChain {
+    fun formLoginConfigure(http: HttpSecurity): SecurityFilterChain {
 
         http
             .formLogin()
@@ -26,9 +26,35 @@ class SecurityConfig {
             .authorizeHttpRequests()
             .anyRequest().authenticated()
 
+        return http.build()
+    }
+
+    @Bean
+    fun httpBasicConfigure(http: HttpSecurity): SecurityFilterChain {
+
         http
-            .apply(CustomSecurityConfigurer().setFlag(false))
+            .httpBasic()
+
+        http
+            .authorizeHttpRequests()
+            .anyRequest().authenticated()
 
         return http.build()
     }
+
+//    @Bean
+//    fun configure(http: HttpSecurity): SecurityFilterChain {
+//
+//        http
+//            .formLogin()
+//
+//        http
+//            .authorizeHttpRequests()
+//            .anyRequest().authenticated()
+//
+//        http
+//            .apply(CustomSecurityConfigurer().setFlag(false))
+//
+//        return http.build()
+//    }
 }
