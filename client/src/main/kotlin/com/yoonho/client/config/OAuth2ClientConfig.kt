@@ -2,6 +2,7 @@ package com.yoonho.client.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.oauth2.client.registration.ClientRegistration
@@ -49,8 +50,17 @@ class OAuth2ClientConfig {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
-            .authorizeHttpRequests()
-            .anyRequest().authenticated()
+//            .authorizeHttpRequests(Customizer.withDefaults())   // 아무런 설정도 하지 않음을 의미
+            .authorizeHttpRequests {
+                it
+//                    .requestMatchers("/loginPage").permitAll()
+                    .anyRequest().authenticated()
+            }
+//            .anyRequest().authenticated()
+
+        http
+            .oauth2Login(Customizer.withDefaults())
+//            .oauth2Login { it.loginPage("/loginPage") }
 
         http
             .oauth2Client()
