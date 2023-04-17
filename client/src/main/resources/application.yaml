@@ -1,4 +1,4 @@
-
+#
 ## OAuth2ClientConfig에서 Bean방식으로 ClientRegistration 구성시 주석처리
 #spring:
 #  security:

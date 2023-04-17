@@ -54,7 +54,8 @@ class OAuth2ClientConfig {
             .authorizeHttpRequests {
                 it
 //                    .requestMatchers("/loginPage").permitAll()
-                    .anyRequest().authenticated()
+//                    .anyRequest().authenticated()
+                    .anyRequest().permitAll()
             }
 //            .anyRequest().authenticated()
 
