@@ -14,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain
  * @since 2023.04.25
  */
 @EnableWebSecurity
-@Configuration
+@Configuration(proxyBeanMethods = false)
 class SecurityConfig {
 
     /**
@@ -24,7 +24,7 @@ class SecurityConfig {
      * @since 2023.04.25
      */
     @Bean
-    fun configure(http: HttpSecurity): SecurityFilterChain {
+    fun defaultConfigure(http: HttpSecurity): SecurityFilterChain {
 
         http
             .authorizeHttpRequests { it.anyRequest().authenticated() }

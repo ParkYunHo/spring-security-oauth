@@ -6,6 +6,8 @@ import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.Ordered
+import org.springframework.core.annotation.Order
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
 import org.springframework.security.oauth2.core.AuthorizationGrantType
@@ -24,6 +26,7 @@ import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
+import java.time.Instant
 import java.util.*
 
 /**
@@ -40,7 +43,8 @@ class AuthorizationServerConfig {
      * @since 2023.04.25
      */
     @Bean
-    fun configure(http: HttpSecurity): SecurityFilterChain {
+    @Order(Ordered.HIGHEST_PRECEDENCE)  // 우선적으로 해당 Bean이 실행되도록 설정
+    fun authConfigure(http: HttpSecurity): SecurityFilterChain {
         // OAuth2AuthorizationServerConfiguration 설정
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http)
 
@@ -73,10 +77,21 @@ class AuthorizationServerConfig {
      */
     @Bean
     fun registeredClientRepository(): RegisteredClientRepository {
-        val client = RegisteredClient.withId(UUID.randomUUID().toString())
+        val client1 = this.getRegisteredClient(clientId = "oauth2-client-app1", clientSecret = "secret1")
+        val client2 = this.getRegisteredClient(clientId = "oauth2-client-app2", clientSecret = "secret2")
+        val client3 = this.getRegisteredClient(clientId = "oauth2-client-app3", clientSecret = "secret3")
+
+        return InMemoryRegisteredClientRepository(listOf(client1, client2, client3))
+    }
+
+    private fun getRegisteredClient(clientId: String, clientSecret: String) =
+        RegisteredClient.withId(UUID.randomUUID().toString())
             // Client 정보 설정
-            .clientId("oauth2-client-app")
-            .clientSecret("{noop}secret")
+            .clientId(clientId)
+            .clientSecret("{noop}$clientSecret")
+            .clientName("clientId")
+            .clientIdIssuedAt(Instant.now())
+            .clientSecretExpiresAt(Instant.MAX)
             // Client 인증방식 설정
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
             .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
@@ -85,17 +100,17 @@ class AuthorizationServerConfig {
             .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
             .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
             // redirect_uri 설정
-            .redirectUri("http://127.0.0.1:8080")
+            .redirectUri("http://127.0.0.1:8080")   // localhost는 사용불가
             .redirectUri("http://127.0.0.1:8081")
             // scope 설정 (String 형태로 임의의 scope 설정 가능)
             .scope(OidcScopes.OPENID)
+            .scope(OidcScopes.PROFILE)
+            .scope(OidcScopes.EMAIL)
             .scope("read")
             .scope("write")
-            .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
+            .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())     // 동의화면을 제공할지 여부
             .build()
 
-        return InMemoryRegisteredClientRepository(client)
-    }
 
     /**
      * OpenID Connect를 위한 JWT Decoder 설정
