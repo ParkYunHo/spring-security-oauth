@@ -6,6 +6,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService
+import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.web.SecurityFilterChain
 
@@ -26,8 +28,8 @@ class SecurityConfig {
     @Bean
     fun defaultConfigure(http: HttpSecurity): SecurityFilterChain {
 
-        http
-            .authorizeHttpRequests { it.anyRequest().authenticated() }
+//        http
+//            .authorizeHttpRequests { it.anyRequest().authenticated() }
 
         http
             .formLogin()
@@ -50,4 +52,19 @@ class SecurityConfig {
 
         return InMemoryUserDetailsManager(user)
     }
+
+    /**
+     * 인증정보를 관리하는 서비스
+     * <p>
+     *     - 인가코드
+     *     - access_token
+     *     - refresh_token
+     *     - openid
+     *
+     * @author yoonho
+     * @since 2023.04.26
+     */
+    @Bean
+    fun oAuth2AuthorizationService(): OAuth2AuthorizationService =
+        InMemoryOAuth2AuthorizationService()
 }

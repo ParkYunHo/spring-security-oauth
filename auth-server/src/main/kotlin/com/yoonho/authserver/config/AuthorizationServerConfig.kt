@@ -18,9 +18,11 @@ import org.springframework.security.oauth2.server.authorization.client.InMemoryR
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.AuthenticationConverter
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 import java.security.KeyPair
 import java.security.KeyPairGenerator
@@ -67,7 +69,14 @@ class AuthorizationServerConfig {
      */
     @Bean
     fun settings(): AuthorizationServerSettings =
-        AuthorizationServerSettings.builder().issuer("http://localhost:9000").build()
+        AuthorizationServerSettings.builder()
+            .issuer("http://localhost:9000")
+            // 인가코드 Endpoint 설정
+            .authorizationEndpoint("/alliance/oauth2/authorize")
+            // Token Endpoint 설정
+            .tokenEndpoint("/alliance/oauth2/token")
+
+            .build()
 
     /**
      * Client 정보 설정
